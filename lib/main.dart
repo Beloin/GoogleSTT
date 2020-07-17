@@ -10,7 +10,10 @@ import 'package:sound_stream/sound_stream.dart';
 void main() => runApp(MultiProvider(
       providers: [
         Provider<Future<FlowController>>(
-          create: (_) => FlowController.build(),
+          create: (_) => FlowController.build()
+            ..then((value) {
+              value.startAudioStream();
+            }),
         )
       ],
       child: MyApp(),
@@ -69,9 +72,7 @@ class _MainWidgetClassState extends State<MainWidgetClass> {
       child: Column(
         children: <Widget>[
           /// Começa o reconhecimento
-          FlatButton(
-              onPressed: () => streamingRecognize(),
-              child: Text('Começar a reconhecer')),
+          Text('O reconhecimento é automático'),
         ],
       ),
     );
