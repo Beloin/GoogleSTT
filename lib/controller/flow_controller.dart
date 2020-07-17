@@ -48,6 +48,7 @@ class FlowController {
     return response.getMessage();
   }
 
+  /// Manda e recebe uma mensagem do Robô
   Future<void> talkToRobot(String message) async {
     final String toSpeak = await _getResponse(message);
     await flutterTts.speak(toSpeak);
@@ -70,7 +71,11 @@ class FlowController {
 
   /// Começa a receber a streaming do Mic
   startAudioStream() async {
-    await _recorder.start();
+    try {
+      await _recorder.start();
+    } catch (e) {
+      print('Error starting Mic' + e.toString());
+    }
 
     final stream = speechToText.streamingRecognize(
         StreamingRecognitionConfig(config: _config, interimResults: false),
@@ -80,20 +85,31 @@ class FlowController {
     bool listen = false;
 
     stream.listen((event) async {
-      var res = event.results.map((e) => e.alternatives.first.transcript);
-      print(res);
-      finalResponse = event.results.first.alternatives.first.transcript;
-      if (listen) {
-        String finalRes = finalResponse.substring(0, finalResponse.length);
-        print('Mandou: ' + finalRes);
-        await talkToRobot(finalRes);
-        listen = false;
+      try {
+        var res = event.results.map((e) => e.alternatives.first.transcript);
+        print(res);
+        finalResponse = event.results.first.alternatives.first.transcript;
+        if (listen) {
+          String finalRes = finalResponse.substring(0, finalResponse.length);
+          print('Mandou: ' + finalRes);
+          await talkToRobot(finalRes);
+          listen = false;
+        }
+        if (finalResponse
+                .substring(0, finalResponse.length)
+                .trim()
+                .toLowerCase() ==
+            "olá sou") {
+          print('Me chamou?');
+          String finalRes = finalResponse.substring(0, finalResponse.length);
+          listen = true;
+        }
+      } catch (e) {
+        /// Recupera o Erro pois no ultimo event ele vem vazio.
+        print('Reiniciando...');
       }
-      if (res.toString().toLowerCase().trim() == "( olá sou)") {
-        print('Me chamou?');
-        String finalRes = finalResponse.substring(0, finalResponse.length);
-        listen = true;
-      }
+    }).onError((e) {
+      startAudioStream();
     });
   }
 }
