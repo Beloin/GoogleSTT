@@ -3,10 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_speech/google_speech.dart';
+import 'package:mic_speech/controller/flow_controller.dart';
 import 'package:mic_speech/dialog.dart';
+import 'package:provider/provider.dart';
 import 'package:sound_stream/sound_stream.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(MultiProvider(
+      providers: [
+        Provider<Future<FlowController>>(
+          create: (_) => FlowController.build(),
+        )
+      ],
+      child: MyApp(),
+    ));
 
 class MyApp extends StatefulWidget {
   @override
@@ -43,73 +52,30 @@ class MainWidgetClass extends StatefulWidget {
 }
 
 class _MainWidgetClassState extends State<MainWidgetClass> {
-  final RecorderStream recorder = RecorderStream();
-
+  Future<FlowController> controller;
   @override
   void initState() {
     super.initState();
-    recorder.initialize();
   }
-
-  StreamSubscription<dynamic> stream;
 
   void streamingRecognize() async {
-    await recorder.start();
-
-    final serviceAccount = ServiceAccount.fromString(
-        '${(await rootBundle.loadString('assets/TESTProj.json'))}');
-    final speechToText = SpeechToText.viaServiceAccount(serviceAccount);
-
-    final config = _getConfig();
-
-    final responseStream = speechToText.streamingRecognize(
-        StreamingRecognitionConfig(config: config, interimResults: false),
-        recorder.audioStream);
-
-    String finalResponse;
-    responseStream.listen((event) {
-      var res = event.results.map((e) => e.alternatives.first.transcript);
-      print(res);
-      if (res.toString().toLowerCase().trim() == "( olá sou)") {
-        print('Me chamou?');
-        DialogTesting().auth(res.toString().substring(0, res.length));
-      }
-      finalResponse = event.results.first.alternatives.first.transcript;
-    }, onDone: () {
-      print("Resposta final: " +
-          finalResponse.substring(0, finalResponse.length));
-      //DialogTesting().auth(finalResponse.substring(0, finalResponse.length));
-    });
-  }
-
-  Future<void> stopRecording() async {
-    await recorder.stop();
+    final _ctrl = await controller;
+    _ctrl.startAudioStream();
   }
 
   @override
   Widget build(BuildContext context) {
+    controller = Provider.of<Future<FlowController>>(context);
     return Center(
       child: Column(
         children: <Widget>[
-
           /// Começa o reconhecimento
           FlatButton(
               onPressed: () => streamingRecognize(),
               child: Text('Começar a reconhecer')),
-
-          /// Para deixar continuo não apertar aqui!
-          FlatButton(onPressed: () => stopRecording(), child: Text('Parar')),
           DialogTesting(),
         ],
       ),
     );
   }
-
-  _getConfig() => RecognitionConfig(
-        encoding: AudioEncoding.LINEAR16,
-        languageCode: 'pt-BR',
-        sampleRateHertz: 16000,
-        model: RecognitionModel.basic,
-        enableAutomaticPunctuation: true,
-      );
 }

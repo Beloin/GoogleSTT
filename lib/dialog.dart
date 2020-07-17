@@ -16,7 +16,7 @@ class DialogTesting extends StatelessWidget {
               onPressed: () {
                 auth("Onde você trabalha?");
               },
-              // AQui é um teste simples, a parte importante tá na outra página
+              // Aqui é um teste simples, a parte importante tá na outra página
               child: Text('Chamar o robô')),
         ],
       ),
