@@ -70,11 +70,15 @@ class _MainWidgetClassState extends State<MainWidgetClass> {
     responseStream.listen((event) {
       var res = event.results.map((e) => e.alternatives.first.transcript);
       print(res);
+      if (res.toString().toLowerCase().trim() == "( olá sou)") {
+        print('Me chamou?');
+        DialogTesting().auth(res.toString().substring(0, res.length));
+      }
       finalResponse = event.results.first.alternatives.first.transcript;
     }, onDone: () {
       print("Resposta final: " +
           finalResponse.substring(0, finalResponse.length));
-      DialogTesting().auth(finalResponse.substring(0, finalResponse.length));
+      //DialogTesting().auth(finalResponse.substring(0, finalResponse.length));
     });
   }
 
@@ -87,12 +91,13 @@ class _MainWidgetClassState extends State<MainWidgetClass> {
     return Center(
       child: Column(
         children: <Widget>[
-          Container(
-            child: Text('Hello World'),
-          ),
+
+          /// Começa o reconhecimento
           FlatButton(
               onPressed: () => streamingRecognize(),
               child: Text('Começar a reconhecer')),
+
+          /// Para deixar continuo não apertar aqui!
           FlatButton(onPressed: () => stopRecording(), child: Text('Parar')),
           DialogTesting(),
         ],

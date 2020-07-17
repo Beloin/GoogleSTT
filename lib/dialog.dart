@@ -16,12 +16,14 @@ class DialogTesting extends StatelessWidget {
               onPressed: () {
                 auth("Onde você trabalha?");
               },
+              // AQui é um teste simples, a parte importante tá na outra página
               child: Text('Chamar o robô')),
         ],
       ),
     );
   }
 
+  /// Chama o DialogFLow
   void auth(String message) async {
     await flutterTts.setLanguage("pt-BR");
     await flutterTts.setSpeechRate(1.0);
