@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_speech/google_speech.dart';
 import 'package:mic_speech/controller/flow_controller.dart';
-import 'package:mic_speech/dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:sound_stream/sound_stream.dart';
 
@@ -60,7 +59,7 @@ class _MainWidgetClassState extends State<MainWidgetClass> {
 
   void streamingRecognize() async {
     final _ctrl = await controller;
-    _ctrl.startAudioStream();
+    await _ctrl.startAudioStream();
   }
 
   @override
@@ -73,7 +72,6 @@ class _MainWidgetClassState extends State<MainWidgetClass> {
           FlatButton(
               onPressed: () => streamingRecognize(),
               child: Text('Começar a reconhecer')),
-          DialogTesting(),
         ],
       ),
     );

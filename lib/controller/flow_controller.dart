@@ -77,16 +77,22 @@ class FlowController {
         _recorder.audioStream);
 
     String finalResponse = '';
+    bool listen = false;
 
-    stream.listen((event) {
+    stream.listen((event) async {
       var res = event.results.map((e) => e.alternatives.first.transcript);
       print(res);
       finalResponse = event.results.first.alternatives.first.transcript;
+      if (listen) {
+        String finalRes = finalResponse.substring(0, finalResponse.length);
+        print('Mandou: ' + finalRes);
+        await talkToRobot(finalRes);
+        listen = false;
+      }
       if (res.toString().toLowerCase().trim() == "( olá sou)") {
         print('Me chamou?');
         String finalRes = finalResponse.substring(0, finalResponse.length);
-        print('Mandou: ' + finalRes);
-        talkToRobot(finalRes);
+        listen = true;
       }
     });
   }
